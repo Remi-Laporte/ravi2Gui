@@ -12,7 +12,7 @@ class Gui(QMainWindow):
     def initUI(self):
         self.statusBar().showMessage('Ready')
 
-        self.setGeometry(300, 300, 250, 150)
+        self.setGeometry(1000, 1000, 600, 600) #MODIFICATION TAILLE FENETRE
         self.setWindowTitle('Titre de folie') #MODIFICATION DU TITRE
         self.show()
 
