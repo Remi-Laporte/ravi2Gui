@@ -1,6 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, qApp, QWidget, QVBoxLayout, QTabWidget, QPushButton, \
-    QInputDialog, QLineEdit
+    QInputDialog, QLineEdit, QTableWidget, QTableWidgetItem
+
 
 class Gui(QMainWindow):
 
@@ -39,7 +40,7 @@ class Gui(QMainWindow):
 
         self.setMinimumSize(1280, 720)
 
-        self.setWindowTitle('Ravi Example')
+        self.setWindowTitle('RLE')
 
         self.myWidget = MyTableWidget(self)
 
@@ -71,8 +72,8 @@ class MyTableWidget(QWidget):
 
 
         # Add tabs
-        self.tabs.addTab(self.tab1, "Onglet 1")
-        self.tabs.addTab(self.tab2, "Onglet 2")
+        self.tabs.addTab(self.tab1, "Onglet n°1")
+        self.tabs.addTab(self.tab2, "Onglet n°2")
 
         self.tab1.layout = QVBoxLayout(self)
         openButton = QPushButton("Nom ?")
@@ -80,14 +81,39 @@ class MyTableWidget(QWidget):
 
         self.tab1.layout.addWidget(openButton)
         self.tab1.setLayout(self.tab1.layout)
-        self.tab1.setStyleSheet("background-image: iri-logo.png; background-attachment: fixed;")
+        self.tab1.setStyleSheet("background-image: url(d518yih-e75034ee-a8f9-43c6-a597-a8d700070531.jpg); background-attachment: fixed;")
 
+        # Tab 2:
+        self.tableWidget = QTableWidget()
+        self.tableWidget.setRowCount(6)
+        self.tableWidget.setColumnCount(2)
+
+        self.tab2.layout = QVBoxLayout(self)
+        self.tab2.layout.addWidget(self.tableWidget)
+        self.tab2.setLayout(self.tab2.layout)
+
+
+        self.tableWidget.setItem(0, 0, QTableWidgetItem("Nom"))
+        self.tableWidget.setItem(1, 0, QTableWidgetItem("Prenom"))
+        self.tableWidget.setItem(2, 0, QTableWidgetItem("Date de naissance "))
+        self.tableWidget.setItem(3, 0, QTableWidgetItem("Sexe "))
+        self.tableWidget.setItem(4, 0, QTableWidgetItem("Taille"))
+        self.tableWidget.setItem(5, 0, QTableWidgetItem("Poids "))
+
+        SaveButton = QPushButton("Sauvegarde?")
+        SaveButton.clicked.connect(self.SaveClick)
+        self.tab2.layout.addWidget(SaveButton)
+        self.tab2.setLayout(self.tab2.layout)
 
         # Add tabs to widget
         self.layout.addWidget(self.tabs)
         self.setLayout(self.layout)
 
     def openClick(self):
-        print("click")
+        print("Click")
         nom,type = QInputDialog.getText(self,"input dialog","Votre Nom ?",QLineEdit.Normal,"")
         print(nom)
+
+    def SaveClick(self):
+        print("Save")
+
