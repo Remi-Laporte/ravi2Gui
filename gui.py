@@ -1,137 +1,91 @@
-import json
-import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, qApp, QWidget, QVBoxLayout, QTabWidget, QPushButton, \
-    QInputDialog, QLineEdit, QTableWidget, QTableWidgetItem
+import threading
+
+import pygame
+
+# Define some colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
 
 
-class Gui(QMainWindow):
-
+class Gui(threading.Thread):
     def __init__(self):
-        super().__init__()
-        self.initUI()
+        threading.Thread.__init__(self)
+        self.width = 20
+        self.height = 20
+        self.margin = 5
+        self.grid = []
 
-    def initUI(self):
-        self.statusBar().showMessage('Ready')
+        for row in range(20):
+            # Add an empty array that will hold each cell
+            # in this row
+            self.grid.append([])
+            for column in range(40):
+                self.grid[row].append(0)  # Append a cell
 
-        menubar = self.menuBar()
-        fichierMenu = menubar.addMenu("Fichier")
+    def updateCell(self,x,y,valeur):
+        self.grid[x][y]=valeur
 
-        openAct = QAction("Ouvrir",self)
-        openAct.triggered.connect(self.open)
-        openAct.setShortcut('ctrl+O')
-        openAct.setStatusTip('Ouvrir un fichier')
+    def run(self):
+        # Initialize pygame
+        pygame.init()
 
-        recAct = QAction("Enregistrer",self)
-        recAct.triggered.connect(self.rec)
-        recAct.setShortcut('ctrl+S')
-        recAct.setStatusTip('Enregistrer un fichier')
+        # Set the HEIGHT and WIDTH of the screen
+        WINDOW_SIZE = [1005, 505]
+        screen = pygame.display.set_mode(WINDOW_SIZE)
 
+        # Set title of screen
+        pygame.display.set_caption("Le jeu de la vie")
 
-        quitAct = QAction("Quitter",self)
-        quitAct.triggered.connect(self.exit)
-        quitAct.setShortcut('ctrl+Q')
-        quitAct.setStatusTip('Quitter')
+        # Loop until the user clicks the close button.
+        done = False
 
+        # Used to manage how fast the screen updates
+        clock = pygame.time.Clock()
 
+        # -------- Main Program Loop -----------
+        while not done:
+            for event in pygame.event.get():  # User did something
+                if event.type == pygame.QUIT:  # If user clicked close
+                    done = True  # Flag that we are done so we exit this loop
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    # User clicks the mouse. Get the position
+                    pos = pygame.mouse.get_pos()
+                    # Change the x/y screen coordinates to grid coordinates
+                    column = pos[0] // (self.width + self.margin)
+                    row = pos[1] // (self.height + self.margin)
+                    # Set that location to one
+                    self.grid[row][column] = 1
+                    print("Click ", pos, "Grid coordinates: ", row, column)
 
-        fichierMenu.addAction(openAct)
-        fichierMenu.addAction(recAct)
-        fichierMenu.addSeparator()
-        fichierMenu.addAction(quitAct)
+            # Set the screen background
+            screen.fill(BLACK)
 
-        self.setMinimumSize(1280, 720)
+            # Draw the grid
+            for row in range(20):
+                for column in range(40):
+                    color = WHITE
+                    if self.grid[row][column] == 1:
+                        color = GREEN
+                    if self.grid[row][column] == 2:
+                        color = RED
+                    if self.grid[row][column] == 3:
+                        color = BLACK
+                    pygame.draw.rect(screen,
+                                     color,
+                                     [(self.margin + self.width) * column + self.margin,
+                                      (self.margin + self.height) * row + self.margin,
+                                      self.width,
+                                      self.height])
 
-        self.setWindowTitle('RLE')
+            # Limit to 60 frames per second
+            clock.tick(60)
 
-        self.myWidget = MyTableWidget(self)
+            # Go ahead and update the screen with what we've drawn.
+            pygame.display.flip()
 
-        self.setCentralWidget(self.myWidget)
+        # Be IDLE friendly. If you forget this line, the program will 'hang'
+        # on exit.
+        pygame.quit()
 
-        self.show()
-
-    def open(self):
-        print("open")
-
-    def rec(self):
-        print("rec")
-
-    def exit(self):
-        print("exit")
-        self.quit
-
-
-class MyTableWidget(QWidget):
-
-    def __init__(self, parent):
-        super(QWidget, self).__init__(parent)
-        self.layout = QVBoxLayout(self)
-
-        # Initialize tab screen
-        self.tabs = QTabWidget()
-        self.tab1 = QWidget()
-        self.tab2 = QWidget()
-
-
-        # Add tabs
-        self.tabs.addTab(self.tab1, "Onglet n°1")
-        self.tabs.addTab(self.tab2, "Onglet n°2")
-
-        self.tab1.layout = QVBoxLayout(self)
-        openButton = QPushButton("Nom ?")
-        openButton.clicked.connect(self.openClick)
-
-        self.tab1.layout.addWidget(openButton)
-        self.tab1.setLayout(self.tab1.layout)
-        self.tab1.setStyleSheet("background-image: url(d518yih-e75034ee-a8f9-43c6-a597-a8d700070531.jpg); background-attachment: fixed;")
-
-        # Tab 2:
-        self.tableWidget = QTableWidget()
-        self.tableWidget.setRowCount(6)
-        self.tableWidget.setColumnCount(2)
-
-        self.tab2.layout = QVBoxLayout(self)
-        self.tab2.layout.addWidget(self.tableWidget)
-        self.tab2.setLayout(self.tab2.layout)
-
-
-        self.tableWidget.setItem(0, 0, QTableWidgetItem("Nom"))
-        self.tableWidget.setItem(1, 0, QTableWidgetItem("Prenom"))
-        self.tableWidget.setItem(2, 0, QTableWidgetItem("Date de naissance "))
-        self.tableWidget.setItem(3, 0, QTableWidgetItem("Sexe "))
-        self.tableWidget.setItem(4, 0, QTableWidgetItem("Taille"))
-        self.tableWidget.setItem(5, 0, QTableWidgetItem("Poids "))
-
-        SaveButton = QPushButton("Sauvegarde?")
-        SaveButton.clicked.connect(self.SaveClick)
-        self.tab2.layout.addWidget(SaveButton)
-        self.tab2.setLayout(self.tab2.layout)
-
-        # Add tabs to widget
-        self.layout.addWidget(self.tabs)
-        self.setLayout(self.layout)
-
-
-    def openClick(self):
-        print("Click")
-        nom,type = QInputDialog.getText(self,"input dialog","Votre Nom ?",QLineEdit.Normal,"")
-        print(nom)
-
-    def SaveClick(self):
-        print("Save")
-        dictionnaire = {}
-        if self.tableWidget.item(0, 1):
-            dictionnaire['nom'] = self.tableWidget.item(0, 1).text()
-        if self.tableWidget.item(1, 1):
-            dictionnaire['prenom'] = self.tableWidget.item(1, 1).text()
-        if self.tableWidget.item(2, 1):
-            dictionnaire['Date'] = self.tableWidget.item(2, 1).text()
-        if self.tableWidget.item(3, 1):
-            dictionnaire['Sexe'] = self.tableWidget.item(3, 1).text()
-        if self.tableWidget.item(4, 1):
-            dictionnaire['Taille'] = self.tableWidget.item(4, 1).text()
-        if self.tableWidget.item(5, 1):
-            dictionnaire['Poids'] = self.tableWidget.item(5, 1).text()
-
-        print (dictionnaire)
-        with open('data.json', 'w') as file:
-            json.dump(dictionnaire, file)
