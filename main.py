@@ -1,27 +1,35 @@
-import sys
+from random import randint
 
-from PyQt5.QtWidgets import QApplication
-
+from cell import Cell
 from gui import Gui
+from simulation import Simulation
+
+#On déclare une simulation, une cellule et une interface pour avoir acccès au fonction de la classe.
+simulation1=Simulation()
+simulation1.SetLongueur()
+simulation1.SetLargeur()
+t=simulation1.GetLongueur()
+p=simulation1.GetLargeur()
+
+simulation1.SetNbGen()
+nb=simulation1.GetNbGen()
+
+cellule1=Cell(t,p)
+interface = Gui(t,p)
+interface.getligne()
+interface.getcolone()
 
 
-'''
-Question 1: Changer le titre de la fenetre
-Question 2: Changer la taille minimale de la fenetre (1280x720)
-Question 3: ajouter un menu "fichier" avec 3 actions possible (ouvrir / enregistrer / quitter)
-Question 4: Ajouter la description des action dans la "statue bar"
+interface.start()
+for x in range(t):
+    for y in range(p):
+        interface.updateCell(x,y,randint(0,1)) #Affectue un motif aléatoire
 
-Question 5: ajouter un systeme d'onglet
-Question 6: dans l'onglet 1, ajouter un bouton qui ouvre un "input file" pour demander le nom de l'utilisateur
-Question 7: dans l'onglet 1, ajouter un label pour afficher le nom de l'utilisateur
-Question 8: Changer l'arriere plan de l'onglet 1 avec une image de votre choix
+#interface.SaveClick(x,y)
+for i in range (nb):
+    simulation1.CalculNbrVoisin()
+    simulation1.CalculregleVoisin()
+    for x in range(t):
+        for y in range(p):
+            interface.updateCell()
 
-Question 9: dans l'onglet 2, ajouter un tableau a deux colonnes pour enregistrer les carateristiques de l'utilisateur (nom, prenom, date de naissance, sexe, taille poid)
-Question 10: dans l'onglet 2, ajouter un bouton "enregistrer" qui enregistre dans un fichier les carateristiques dans un fichier json  
-
-
-'''
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = Gui()
-    sys.exit(app.exec_())

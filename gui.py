@@ -1,8 +1,11 @@
+import json
 import threading
-
+from simulation import Simulation
 import pygame
 
 # Define some colors
+from simulation import Simulation
+
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
@@ -10,33 +13,50 @@ RED = (255, 0, 0)
 
 
 class Gui(threading.Thread):
-    def __init__(self):
+    def __init__(self,ligne,colone):
         threading.Thread.__init__(self)
         self.width = 20
         self.height = 20
         self.margin = 5
         self.grid = []
+        self.ligne = ligne
+        self.colone= colone
 
-        for row in range(20):
+        for row in range(self.ligne):
             # Add an empty array that will hold each cell
             # in this row
             self.grid.append([])
-            for column in range(40):
+            for column in range(self.colone):
                 self.grid[row].append(0)  # Append a cell
 
-    def updateCell(self,x,y,valeur):
+    def getcolone(self):
+        print(self.colone)
+        return self.colone
+
+    def getligne(self):
+        print(self.ligne)
+        return self.ligne
+
+    def setcolone(self, x):
+        self.colone = x
+
+    def setligne(self, y):
+        self.ligne = y
+
+    def updateCell(self,x=0,y=0,valeur=0):
         self.grid[x][y]=valeur
 
     def run(self):
+
         # Initialize pygame
         pygame.init()
 
         # Set the HEIGHT and WIDTH of the screen
-        WINDOW_SIZE = [1005, 505]
+        WINDOW_SIZE = [1920, 1080]
         screen = pygame.display.set_mode(WINDOW_SIZE)
 
         # Set title of screen
-        pygame.display.set_caption("Le jeu de la vie")
+        pygame.display.set_caption("Le jeu de la vie-Rémi-Gaetan")
 
         # Loop until the user clicks the close button.
         done = False
@@ -63,8 +83,8 @@ class Gui(threading.Thread):
             screen.fill(BLACK)
 
             # Draw the grid
-            for row in range(20):
-                for column in range(40):
+            for row in range(self.ligne):
+                for column in range(self.colone):
                     color = WHITE
                     if self.grid[row][column] == 1:
                         color = GREEN
@@ -78,7 +98,6 @@ class Gui(threading.Thread):
                                       (self.margin + self.height) * row + self.margin,
                                       self.width,
                                       self.height])
-
             # Limit to 60 frames per second
             clock.tick(60)
 
@@ -89,3 +108,12 @@ class Gui(threading.Thread):
         # on exit.
         pygame.quit()
 
+    def SaveClick(self,ligne,colone):
+        print("Save")
+        dictionnaire = {}
+        for x in range(ligne): # Tentatif de sauvegarde
+            for y in range(colone):
+                dictionnaire['xy']=self.grid[ligne][colone].text()
+        print (dictionnaire)
+        with open('data.json', 'w') as file:
+            json.dump(dictionnaire, file)
